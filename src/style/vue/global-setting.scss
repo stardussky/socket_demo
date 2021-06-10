@@ -1,0 +1,65 @@
+:root {
+    --vh: 1vh;
+}
+
+::selection {
+    color: map-get($colors, white);
+    background: map-get($colors, black);
+}
+
+@include get-container();
+@include grid-system();
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body,
+button,
+input,
+textarea {
+    font-family: map-get($font-family, default);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+    @include typo("body", 1);
+
+    min-width: 320px;
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
+}
+
+input,
+textarea {
+    @include typo("body", 1);
+
+    border: none;
+    appearance: none;
+}
+
+pre {
+    white-space: pre-line;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+
+    &:hover,
+    &:active,
+    &:focus {
+        outline: 0;
+    }
+}
+
+button {
+    @include typo("button", 1);
+
+    background-color: transparent;
+}

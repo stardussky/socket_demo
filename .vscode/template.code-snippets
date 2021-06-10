@@ -1,0 +1,42 @@
+{
+    "SCSS RWD mixin large": {
+        "scope": "scss, vue",
+        "prefix": "xl",
+        "body": [
+            "@include media-breakpoint-down(large) {",
+            "$1",
+            "}"
+        ],
+        "description": "rwd large"
+    },
+    "SCSS RWD mixin desktop": {
+        "scope": "scss, vue",
+        "prefix": "lg",
+        "body": [
+            "@include media-breakpoint-down(desktop) {",
+            "$1",
+            "}"
+        ],
+        "description": "rwd desktop"
+    },
+    "SCSS RWD mixin tablet": {
+        "scope": "scss, vue",
+        "prefix": "md",
+        "body": [
+            "@include media-breakpoint-down(tablet) {",
+            "$1",
+            "}"
+        ],
+        "description": "rwd tablet"
+    },
+    "SCSS RWD mixin mobile": {
+        "scope": "scss, vue",
+        "prefix": "xs",
+        "body": [
+            "@include media-breakpoint-down(mobile) {",
+            "$1",
+            "}",
+        ],
+        "description": "rwd mobile"
+    },
+}

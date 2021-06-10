@@ -1,0 +1,24 @@
+{
+  "vetur.validation.template": false,
+  "javascript.format.enable": false,
+  "editor.tabSize": 4,
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true
+  },
+  "eslint.alwaysShowStatus": true,
+  "eslint.options": {
+    "extensions": [".html", ".js", ".vue"]
+  },
+  "eslint.workingDirectories": ["./"],
+  "cSpell.words": ["Vuex"],
+  "cSpell.ignorePaths": [
+    "**/package.json",
+    "**/package-lock.json",
+    "**/node_modules/**",
+    "**/vscode-extension/**",
+    "**/.git/objects/**",
+    ".vscode"
+  ]
+}
