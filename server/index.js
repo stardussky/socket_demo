@@ -10,6 +10,9 @@ const io = require('socket.io')(server, {
     allowEIO3: true,
 })
 
+const options = Object.freeze({
+    HISTORY_TIMER: 1000 * 3
+})
 const colors = [
     '#f6bd60',
     '#f7ede2',
@@ -24,6 +27,8 @@ const colors = [
 ]
 const users = {}
 const chats = []
+const sketchHistory = []
+let historyTimerId
 
 const getUsers = (socket) => {
     socket.emit('get-users', users)
@@ -35,12 +40,13 @@ const getUser = (socket) => {
 
 const addUser = (socket) => {
     users[socket.id] = {
+        ID: socket.id,
+        name: socket.id,
         x: Math.random() * 320 - 160,
         y: Math.random() * 320 - 160,
         color: colors[Math.random() * colors.length >> 0],
-        name: socket.id,
     }
-    io.emit('user-connected', socket.id, users[socket.id])
+    io.emit('user-connected', users[socket.id])
 }
 
 const deleteUser = (socket) => {
@@ -51,7 +57,7 @@ const deleteUser = (socket) => {
 const updatePosition = (socket, { x, y }) => {
     users[socket.id].x = x
     users[socket.id].y = y
-    socket.broadcast.emit('updated-position', socket.id, users[socket.id])
+    socket.broadcast.emit('updated-position', users[socket.id])
 }
 
 const getColors = (socket) => {
@@ -60,12 +66,12 @@ const getColors = (socket) => {
 
 const updateColor = (socket, color) => {
     users[socket.id].color = color
-    io.emit('updated-color', socket.id, users[socket.id])
+    io.emit('updated-color', users[socket.id])
 }
 
 const updateName = (socket, name) => {
     users[socket.id].name = name
-    io.emit('updated-name', socket.id, users[socket.id])
+    io.emit('updated-name', users[socket.id])
 }
 
 const getChats = (socket) => {
@@ -85,11 +91,54 @@ const addChat = (socket, chat) => {
     io.emit("updated-chats", payload);
 }
 
+const getSketchHistory = (socket) => {
+    socket.emit('get-sketch-history', sketchHistory)
+}
+
+const historyTimeout = () => {
+    const target = sketchHistory[0]
+    if(target){
+        const { time } = target
+
+        if(!historyTimerId){
+            historyTimerId = setTimeout(() => {
+                historyTimerId = null
+                historyTimeout()
+            }, 1000);
+        }
+
+        if(Date.now() - time > options.HISTORY_TIMER) {
+            sketchHistory.shift()
+            deleteSketchHistory()
+        }
+        return
+    }
+    clearTimeout(historyTimerId)
+    historyTimerId = null
+}
+
+const addSketchHistory = (socket, base) => {
+    sketchHistory.push({
+        time: Date.now(),
+        value: base
+    })
+    historyTimeout()
+}
+
+const deleteSketchHistory = () => {
+    io.emit('delete-sketch-history', sketchHistory)
+}
+
+const updateSketch = (socket, payload) => {
+    socket.broadcast.emit('updated-sketch', payload)
+}
+
 io.on('connection', (socket) => {
     // console.log('A user connected')
     socket.emit('client-id', socket.id)
     getChats(socket)
     getColors(socket)
+    getSketchHistory(socket)
     getUsers(socket)
     addUser(socket)
     getUser(socket)
@@ -106,8 +155,14 @@ io.on('connection', (socket) => {
     socket.on('submit-chat', (chat) => {
         addChat(socket, chat)
     })
+    socket.on('add-sketch-history', (base) => {
+        addSketchHistory(socket, base)
+    })
+    socket.on('update-sketch', (payload) => {
+        updateSketch(socket, payload)
+    })
 
-    socket.on('disconnect', function () {
+    socket.on('disconnect', () => {
         // console.log('A user disconnected')
         deleteUser(socket)
     })

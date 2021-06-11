@@ -4,6 +4,10 @@
             ref="socket"
             class="socket__canvas"
         />
+        <div
+            ref="sketch"
+            class="socket__canvas"
+        />
         <div class="socket__colors">
             <ul class="socket__colors-list">
                 <li
@@ -78,11 +82,12 @@
 <script>
 import { ref, onMounted, onBeforeUnmount } from '@vue/composition-api'
 import App from './app'
+import Sketch from './sketch'
 
 export default {
     name: 'Socket',
     setup (props, { refs, root }) {
-        let app
+        let app, sketch
         const ID = ref(null)
         const colors = ref(null)
         const name = ref(null)
@@ -134,9 +139,15 @@ export default {
                 root.$socket,
                 root.sockets
             )
+            sketch = new Sketch(
+                refs.sketch,
+                root.$socket,
+                root.sockets
+            )
         })
         onBeforeUnmount(() => {
             app.destroy()
+            sketch.destroy()
             root.sockets.unsubscribe('client-id')
             root.sockets.unsubscribe('get-colors')
             root.sockets.unsubscribe('get-user')
@@ -171,7 +182,16 @@ export default {
     &__canvas {
         @include size(100%);
 
+        position: absolute;
+        top: 0;
+        left: 0;
         pointer-events: none;
+
+        > * {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
     }
 
     &__colors {
