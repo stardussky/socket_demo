@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import socketModule from './socket'
 
 Vue.use(Vuex)
 
@@ -11,7 +12,9 @@ const LOADING = Object.freeze({
 
 export default new Vuex.Store({
     strict: process.env.NODE_ENV === 'development',
-    modules: {},
+    modules: {
+        socketModule,
+    },
     state: {
         loadingConfig: {
             minTime: LOADING.MIN_LOAD_TIME,

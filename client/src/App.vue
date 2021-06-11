@@ -3,14 +3,6 @@
         id="app"
         :style="globalStyle"
     >
-        <div id="nav">
-            <router-link to="/index.html">
-                Home
-            </router-link> |
-            <router-link to="/about.html">
-                About
-            </router-link>
-        </div>
         <router-view />
         <LoadingAjax />
         <LoadingDefault />
@@ -48,20 +40,20 @@ export default {
                 { property: 'og:site_name', content: this.meta.title },
                 { property: 'og:image:width', content: '1200' },
                 { property: 'og:image:height', content: '630' },
-                { property: 'og:image', content: `${this.meta.url}og_img.jpg` },
+                { property: 'og:image', content: `${this.meta.url}/og_img.jpg` },
                 { property: 'og:image:alt', content: this.meta.description },
                 { name: 'twitter:card', content: 'summary_large_image' },
                 { name: 'twitter:description', content: this.meta.description },
                 { name: 'twitter:title', content: this.meta.title },
-                { name: 'twitter:image', content: `${this.meta.url}og_img.jpg` },
+                { name: 'twitter:image', content: `${this.meta.url}/og_img.jpg` },
                 { itemprop: 'name', content: this.meta.title },
                 { itemprop: 'description', content: this.meta.description },
-                { itemprop: 'image', content: `${this.meta.url}og_img.jpg` },
+                { itemprop: 'image', content: `${this.meta.url}/og_img.jpg` },
             ],
             link: [
-                { rel: 'apple-touch-icon', sizes: '180x180', href: `${this.meta.url}favicon/apple-icon-180x180.png` },
-                { rel: 'icon', sizes: '32x32', type: 'image/png', href: `${this.meta.url}favicon/favicon-32x32.png` },
-                { rel: 'icon', sizes: '16x16', type: 'image/png', href: `${this.meta.url}favicon/favicon-16x16.png` },
+                { rel: 'apple-touch-icon', sizes: '180x180', href: `${this.meta.url}/favicon/apple-icon-180x180.png` },
+                { rel: 'icon', sizes: '32x32', type: 'image/png', href: `${this.meta.url}/favicon/favicon-32x32.png` },
+                { rel: 'icon', sizes: '16x16', type: 'image/png', href: `${this.meta.url}/favicon/favicon-16x16.png` },
             ],
         }
     },
@@ -127,21 +119,4 @@ export default {
 <style lang="scss">
 @import '@/style/_main.scss';
 
-#app {
-    text-align: center;
-    color: #2c3e50;
-}
-
-#nav {
-    padding: 30px;
-
-    a {
-        font-weight: bold;
-        color: #2c3e50;
-
-        &.router-link-exact-active {
-            color: #42b983;
-        }
-    }
-}
 </style>

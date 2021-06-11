@@ -56,7 +56,7 @@ module.exports = {
                 }),
                 new PrerenderSPAPlugin({
                     staticDir: path.join(__dirname, 'dist'),
-                    routes: ['/index.html', '/about.html'], // 填入router路徑
+                    routes: ['/index.html'], // 填入router路徑
                     renderer: new Renderer({
                         renderAfterDocumentEvent: 'render-event',
                     }),

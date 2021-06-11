@@ -11,7 +11,6 @@
   "eslint.options": {
     "extensions": [".html", ".js", ".vue"]
   },
-  "eslint.workingDirectories": ["./"],
   "cSpell.words": ["Vuex"],
   "cSpell.ignorePaths": [
     "**/package.json",

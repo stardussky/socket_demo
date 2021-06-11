@@ -1,22 +1,23 @@
 <template>
     <div class="home">
-        <img
-            alt="Vue logo"
-            src="../assets/logo.png"
-        >
-        <HelloWorld msg="Welcome to Your Vue.js App" />
+        <Socket />
     </div>
 </template>
 
 <script>
 import { onMounted } from '@vue/composition-api'
 import functions from '@/compositions/functions'
-import HelloWorld from '@/components/HelloWorld.vue'
+import Socket from '@/components/Socket/Socket'
 
 export default {
     name: 'Home',
+    sockets: {
+        connect () {
+            // console.log('socket connected')
+        },
+    },
     components: {
-        HelloWorld,
+        Socket,
     },
     setup (props, { root }) {
         const { loadImage } = functions()
@@ -27,3 +28,10 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+
+.home {
+    @include size(100%, calc(var(--vh) * 100));
+}
+</style>
