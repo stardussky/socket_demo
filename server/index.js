@@ -11,7 +11,7 @@ const io = require('socket.io')(server, {
 })
 
 const options = Object.freeze({
-    HISTORY_TIMER: 1000 * 3
+    HISTORY_TIMER: 1000 * 60
 })
 const colors = [
     '#f6bd60',

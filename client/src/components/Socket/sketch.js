@@ -44,14 +44,22 @@ class BufferCanvas extends Base {
     }
 
     async drawHistory (payload) {
+        const { halfWight, halfHeight, dpr } = this.viewport
         let image
+
         if (payload instanceof Image) {
             image = payload
-            this.ctx.drawImage(payload, 0, 0)
         } else {
             image = await this.baseToImage(payload)
-            this.ctx.drawImage(image, 0, 0)
         }
+
+        this.ctx.save()
+        this.ctx.translate(halfWight * dpr - image.width / 2, halfHeight * dpr - image.height / 2)
+
+        this.ctx.drawImage(image, 0, 0)
+
+        this.ctx.restore()
+
         return image
     }
 
@@ -64,6 +72,7 @@ class BufferCanvas extends Base {
 
         this.ctx.beginPath()
         this.ctx.strokeStyle = color
+        this.ctx.lineWidth = 2
         this.ctx.moveTo(sx, sy)
         this.ctx.lineTo(mx, my)
         this.ctx.stroke()
@@ -145,6 +154,7 @@ export default class extends Base {
             const { x: sx, y: sy } = this.startingPosition
             this.ctx.beginPath()
             this.ctx.strokeStyle = this.strokeColor
+            this.ctx.lineWidth = 2
             this.ctx.moveTo(sx, sy)
             this.ctx.lineTo(mx, my)
             this.ctx.stroke()
