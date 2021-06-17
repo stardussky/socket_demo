@@ -24,7 +24,7 @@ module.exports = {
         },
     },
     chainWebpack: (config) => {
-    // sass-resources-loader
+        // sass-resources-loader
         const oneOfsMap = config.module.rule('scss').oneOfs.store
         oneOfsMap.forEach((item) => {
             item
@@ -46,6 +46,38 @@ module.exports = {
             .use('svg-sprite-loader')
             .loader('svg-sprite-loader')
             .options({ symbolId: '[name]' })
+        // media
+        config.module
+            .rule('media')
+            .test(/\.(mp3|wav|m4a)$/)
+            .use('url-loader')
+            .loader('url-loader')
+            .options({
+                esModule: false,
+                name: 'media/[path][name].[ext]',
+            })
+            .end()
+        // models
+        config.module
+            .rule('models')
+            .test(/\.(glb|gltf)$/)
+            .use('file-loader')
+            .loader('file-loader')
+            .options({
+                esModule: false,
+                name: 'models/[path][name].[ext]',
+            })
+            .end()
+        // glsl file
+        config.module
+            .rule('glsl')
+            .test(/\.(glsl|vs|fs|vert|frag)$/)
+            .use('raw-loader')
+            .loader('raw-loader')
+            .end()
+            .use('glslify-loader')
+            .loader('glslify-loader')
+            .end()
     },
     configureWebpack: () => {
         const plugins = [new Webpack.ProvidePlugin({})]

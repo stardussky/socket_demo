@@ -1,106 +1,145 @@
 <template>
-    <div class="socket">
-        <div
-            ref="socket"
-            class="socket__canvas"
-        />
-        <div
-            ref="sketch"
-            class="socket__canvas"
-        />
-        <div class="socket__colors">
-            <ul class="socket__colors-list">
-                <li
-                    v-for="color in colors"
-                    :key="color"
-                    class="socket__colors-color"
-                    :style="{ backgroundColor: color }"
-                    @click="changeColor(color)"
-                />
-            </ul>
-            <div class="socket__name">
-                <input
-                    v-model.trim="name"
-                    type="text"
-                    @keydown.enter="changeName"
-                >
-                <button @click="changeName">
-                    更改
-                </button>
-            </div>
-        </div>
-        <div
-            class="socket__chat"
-            :class="{'-hide': hiddenChats}"
-        >
-            <div class="socket__chat-control">
-                <div
-                    class="socket__chat-control-smaller"
-                    @click="hiddenChats = !hiddenChats"
-                >
-                    <Icon
-                        v-show="!hiddenChats"
-                        name="small-window"
+    <transition
+        name="fade"
+        @enter="transitionEnter"
+        @after-leave="transitionLeave"
+    >
+        <div class="socket">
+            <div
+                ref="socket"
+                class="socket__canvas -cursor"
+            />
+            <div
+                ref="sketch"
+                class="socket__canvas -sketch"
+            />
+            <div class="socket__colors">
+                <ul class="socket__colors-list">
+                    <li
+                        v-for="color in colors"
+                        :key="color"
+                        class="socket__colors-color"
+                        :style="{ backgroundColor: color }"
+                        @click="changeColor(color)"
                     />
-                    <Icon
-                        v-show="hiddenChats"
-                        name="big-window"
-                    />
+                </ul>
+                <div class="socket__name">
+                    <input
+                        v-model.trim="name"
+                        type="text"
+                        @keydown.enter="changeName"
+                    >
+                    <button @click="changeName">
+                        更改
+                    </button>
                 </div>
             </div>
-            <ul
-                ref="talks"
-                class="socket__chat-talks"
+            <div
+                class="socket__chat"
+                :class="{'-hide': hiddenChats}"
             >
-                <li
-                    v-for="{ id, name, color, time, value } in chats"
-                    :key="id + time"
-                    class="socket__chat-talk"
-                    :class="{'-self': ID === id}"
-                    :style="{ color }"
+                <div class="socket__chat-control">
+                    <div
+                        class="socket__chat-control-smaller"
+                        @click="hiddenChats = !hiddenChats"
+                    >
+                        <Icon
+                            v-show="!hiddenChats"
+                            name="small-window"
+                        />
+                        <Icon
+                            v-show="hiddenChats"
+                            name="big-window"
+                        />
+                    </div>
+                </div>
+                <ul
+                    ref="talks"
+                    class="socket__chat-talks"
                 >
-                    <p>
-                        <span>{{ name }} : </span>
-                        <span>{{ value }}</span>
-                    </p>
-                </li>
-            </ul>
-            <div class="socket__chat-input">
-                <input
-                    v-model.trim="chatInput"
-                    type="text"
-                    @keydown.enter="submitChat"
-                >
-                <button @click="submitChat">
-                    送出
-                </button>
+                    <li
+                        v-for="{ id, name, color, time, value } in chats"
+                        :key="id + time"
+                        class="socket__chat-talk"
+                        :class="{'-self': ID === id}"
+                        :style="{ color }"
+                    >
+                        <p>
+                            <span>{{ name }} : </span>
+                            <span>{{ value }}</span>
+                        </p>
+                    </li>
+                </ul>
+                <div class="socket__chat-input">
+                    <input
+                        v-model.trim="chatInput"
+                        type="text"
+                        @keydown.enter="submitChat"
+                    >
+                    <button @click="submitChat">
+                        送出
+                    </button>
+                </div>
             </div>
+            <div
+                class="socket__close"
+                @click="$emit('close-socket')"
+            >
+                <Icon name="cancel" />
+            </div>
+            <div
+                v-show="isLoading"
+                class="socket__loading"
+            />
         </div>
-    </div>
+    </transition>
 </template>
 
 <script>
 import { ref, onMounted, onBeforeUnmount } from '@vue/composition-api'
-import App from './app'
+import CursorApp from './cursorApp'
 import Sketch from './sketch'
 
 export default {
     name: 'Socket',
     setup (props, { refs, root }) {
-        let app, sketch
+        let cursorApp, sketch
         const ID = ref(null)
         const colors = ref(null)
         const name = ref(null)
         const chats = ref(null)
         const hiddenChats = ref(true)
         const chatInput = ref(null)
+        const isLoading = ref(true)
 
+        root.sockets.subscribe('get-colors', (payload) => {
+            colors.value = payload
+        })
+        const socketEvents = () => {
+            root.sockets.subscribe('get-user', (user) => {
+                ID.value = user.ID
+                name.value = user.name
+            })
+            root.sockets.subscribe('get-chats', (payload) => {
+                chats.value = payload
+                scrollTalksBottom()
+            })
+            root.sockets.subscribe('updated-chats', (chat) => {
+                chats.value.push(chat)
+                scrollTalksBottom()
+            })
+        }
+        const unSubSocketEvents = () => {
+            root.sockets.unsubscribe('get-user')
+            root.sockets.unsubscribe('get-chats')
+            root.sockets.unsubscribe('updated-chats')
+        }
         const changeColor = (color) => {
-            app.changeColor(color)
+            cursorApp.changeColor(color)
         }
         const changeName = () => {
             if (name.value) {
-                app.changeName(name.value)
+                cursorApp.changeName(name.value)
             }
         }
         const submitChat = () => {
@@ -114,27 +153,23 @@ export default {
                 refs.talks.scrollTop = refs.talks.scrollHeight
             })
         }
-
-        root.sockets.subscribe('client-id', (payload) => {
-            ID.value = payload
-        })
-        root.sockets.subscribe('get-colors', (payload) => {
-            colors.value = payload
-        })
-        root.sockets.subscribe('get-user', (user) => {
-            name.value = user.name
-        })
-        root.sockets.subscribe('get-chats', (payload) => {
-            chats.value = payload
-            scrollTalksBottom()
-        })
-        root.sockets.subscribe('updated-chats', (chat) => {
-            chats.value.push(chat)
-            scrollTalksBottom()
-        })
+        const transitionEnter = () => {
+            window.dispatchEvent(new Event('resize'))
+            socketEvents()
+            root.$socket.emit('join')
+            cursorApp.start()
+            sketch.start()
+        }
+        const transitionLeave = () => {
+            unSubSocketEvents()
+            root.$socket.emit('leave')
+            cursorApp.stop()
+            sketch.stop()
+            isLoading.value = true
+        }
 
         onMounted(() => {
-            app = new App(
+            cursorApp = new CursorApp(
                 refs.socket,
                 root.$socket,
                 root.sockets
@@ -144,15 +179,16 @@ export default {
                 root.$socket,
                 root.sockets
             )
+
+            sketch.on('loadedHistory', () => {
+                isLoading.value = false
+            })
         })
         onBeforeUnmount(() => {
-            app.destroy()
+            cursorApp.destroy()
             sketch.destroy()
-            root.sockets.unsubscribe('client-id')
             root.sockets.unsubscribe('get-colors')
-            root.sockets.unsubscribe('get-user')
-            root.sockets.unsubscribe('get-chats')
-            root.sockets.unsubscribe('updated-chats')
+            unSubSocketEvents()
         })
 
         return {
@@ -165,6 +201,9 @@ export default {
             hiddenChats,
             chatInput,
             submitChat,
+            transitionEnter,
+            transitionLeave,
+            isLoading,
         }
     },
 }
@@ -177,6 +216,7 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
+    background-color: rgba(map-get($colors, black), 0.8);
     // cursor: none;
 
     &__canvas {
@@ -185,7 +225,6 @@ export default {
         position: absolute;
         top: 0;
         left: 0;
-        pointer-events: none;
 
         > * {
             position: absolute;
@@ -202,7 +241,7 @@ export default {
         text-align: center;
         background-color: map-get($colors, white);
         border-radius: 100px;
-        box-shadow: 5px 5px 10px rgba(map-get($colors, dark), 0.5);
+        box-shadow: 5px 5px 10px rgba(map-get($colors, black), 0.5);
         transform: translate(-50%, -50px);
         cursor: auto;
 
@@ -256,7 +295,7 @@ export default {
         background-color: map-get($colors, white);
         border-radius: 10px;
         z-index: 1;
-        box-shadow: 5px 5px 10px rgba(map-get($colors, dark), 0.5);
+        box-shadow: 5px 5px 10px rgba(map-get($colors, black), 0.5);
         transition: width .4s, height .4s .2s, border-radius .4s;
         flex-direction: column;
         cursor: auto;
@@ -334,6 +373,26 @@ export default {
                 margin-left: 5px;
             }
         }
+    }
+
+    &__close {
+        @include size(40px);
+
+        position: fixed;
+        top: 40px;
+        right: 40px;
+        color: map-get($colors, white);
+        cursor: pointer;
+    }
+
+    &__loading {
+        @include size(100%);
+
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: red;
+        z-index: 1;
     }
 }
 </style>

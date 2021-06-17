@@ -1,13 +1,20 @@
 <template>
     <div class="home">
-        <Socket />
+        <Three
+            @open-socket="isSocket = true"
+        />
+        <Socket
+            v-show="isSocket"
+            @close-socket="isSocket = false"
+        />
     </div>
 </template>
 
 <script>
-import { onMounted } from '@vue/composition-api'
+import { ref, onMounted } from '@vue/composition-api'
 import functions from '@/compositions/functions'
 import Socket from '@/components/Socket/Socket'
+import Three from '@/components/Three/Three'
 
 export default {
     name: 'Home',
@@ -18,13 +25,19 @@ export default {
     },
     components: {
         Socket,
+        Three,
     },
     setup (props, { root }) {
         const { loadImage } = functions()
+        const isSocket = ref(false)
 
         onMounted(() => {
             root.$store.dispatch('ADD_LOADING_STACK', loadImage())
         })
+
+        return {
+            isSocket,
+        }
     },
 }
 </script>

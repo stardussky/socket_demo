@@ -11,15 +11,15 @@ class BufferCanvas extends Base {
             this.socket = socket
             this.sockets = sockets
             this.history = []
-
-            this.socketEvents()
         }
     }
 
     socketEvents () {
-        this.sockets.subscribe('get-sketch-history', (history) => {
+        this.sockets.subscribe('get-sketch-history', async (history) => {
+            this.onEvents.loadHistory?.()
             Promise.all(history.map(({ value }) => this.drawHistory(value))).then(result => {
                 this.history = result
+                this.onEvents.loadedHistory?.()
             })
         })
         this.sockets.subscribe('updated-sketch', (payload) => {
@@ -31,6 +31,12 @@ class BufferCanvas extends Base {
                 this.refreshSketch()
             })
         })
+    }
+
+    unSubSocketEvents () {
+        this.sockets.unsubscribe('get-sketch-history')
+        this.sockets.unsubscribe('updated-sketch')
+        this.sockets.unsubscribe('delete-sketch-history')
     }
 
     baseToImage (base) {
@@ -51,6 +57,7 @@ class BufferCanvas extends Base {
             image = payload
         } else {
             image = await this.baseToImage(payload)
+            this.history.push(image)
         }
 
         this.ctx.save()
@@ -95,10 +102,16 @@ class BufferCanvas extends Base {
         this.refreshSketch()
     }
 
+    start () {
+        this.socketEvents()
+    }
+
+    stop () {
+        this.unSubSocketEvents()
+    }
+
     destroy () {
-        this.sockets.unsubscribe('get-sketch-history')
-        this.sockets.unsubscribe('updated-sketch')
-        this.sockets.unsubscribe('delete-sketch-history')
+        this.stop()
 
         super.destroy()
     }
@@ -108,6 +121,7 @@ export default class extends Base {
     constructor (el, socket, sockets) {
         super(el, {
             clear: false,
+            autoRender: false,
         })
         if (el instanceof Element) {
             this.ID = null
@@ -122,15 +136,16 @@ export default class extends Base {
             this.mouseup = this.mouseup.bind(this)
             this.mousedown = this.mousedown.bind(this)
 
+            this.bufferCanvas.on('loadHistory', () => {
+                this.onEvents.loadHistory?.()
+            })
+            this.bufferCanvas.on('loadedHistory', () => {
+                this.onEvents.loadedHistory?.()
+            })
+
             this.reqRenders.push(() => {
                 this.draw()
             })
-
-            window.addEventListener('mousemove', this.mousemove)
-            window.addEventListener('mouseup', this.mouseup)
-            window.addEventListener('mousedown', this.mousedown)
-
-            this.socketEvents()
         }
     }
 
@@ -146,6 +161,11 @@ export default class extends Base {
                 this.strokeColor = color
             }
         })
+    }
+
+    unSubSocketEvents () {
+        this.sockets.unsubscribe('get-user')
+        this.sockets.unsubscribe('updated-color')
     }
 
     draw () {
@@ -191,13 +211,31 @@ export default class extends Base {
         this.startingPosition = this.mouse.clone()
     }
 
-    destroy () {
-        this.sockets.unsubscribe('get-user')
-        this.sockets.unsubscribe('updated-color')
+    start () {
+        this.render()
+        this.bufferCanvas.start()
 
-        window.removeEventListener('mousemove', this.mousemove)
-        window.removeEventListener('mouseup', this.mouseup)
-        window.removeEventListener('mousedown', this.mousedown)
+        this.el.addEventListener('mousemove', this.mousemove)
+        this.el.addEventListener('mouseup', this.mouseup)
+        this.el.addEventListener('mousedown', this.mousedown)
+
+        this.socketEvents()
+    }
+
+    stop () {
+        super.stop()
+        this.bufferCanvas.stop()
+
+        this.el.removeEventListener('mousemove', this.mousemove)
+        this.el.removeEventListener('mouseup', this.mouseup)
+        this.el.removeEventListener('mousedown', this.mousedown)
+
+        this.unSubSocketEvents()
+    }
+
+    destroy () {
+        this.stop()
+        this.bufferCanvas.destroy()
 
         super.destroy()
     }

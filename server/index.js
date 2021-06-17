@@ -2,6 +2,11 @@ require('dotenv').config({ path: `../client/.env.${process.env.NODE_ENV}` })
 const app = require('express')()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
+    // cookie: {
+    //     name: "socket",
+    //     httpOnly: false,
+    //     SameSite: 'lax'
+    // },
     cors: {
         origin: process.env.VUE_APP_API,
         methods: ['GET', 'POST'],
@@ -11,7 +16,7 @@ const io = require('socket.io')(server, {
 })
 
 const options = Object.freeze({
-    HISTORY_TIMER: 1000 * 60
+    HISTORY_TIMER: 1000 * 999999
 })
 const colors = [
     '#f6bd60',
@@ -25,6 +30,7 @@ const colors = [
     '#e55934',
     '#fa7921',
 ]
+const unActiveUsers = {}
 const users = {}
 const chats = []
 const sketchHistory = []
@@ -39,14 +45,13 @@ const getUser = (socket) => {
 }
 
 const addUser = (socket) => {
-    users[socket.id] = {
+    unActiveUsers[socket.id] = {
         ID: socket.id,
         name: socket.id,
         x: Math.random() * 320 - 160,
         y: Math.random() * 320 - 160,
         color: colors[Math.random() * colors.length >> 0],
     }
-    io.emit('user-connected', users[socket.id])
 }
 
 const deleteUser = (socket) => {
@@ -133,15 +138,29 @@ const updateSketch = (socket, payload) => {
     socket.broadcast.emit('updated-sketch', payload)
 }
 
+const userJoin = (socket) => {
+    const user = {...unActiveUsers[socket.id]}
+    if(user){
+        users[socket.id] = user
+        delete unActiveUsers[socket.id]
+        io.emit('user-connected', user)
+    }
+}
+
+const userLeave = (socket) => {
+    const user = {...users[socket.id]}
+    if(user){
+        unActiveUsers[socket.id] = user
+        delete users[socket.id]
+        io.emit('user-disconnected', socket.id)
+    }
+}
+
 io.on('connection', (socket) => {
     // console.log('A user connected')
-    socket.emit('client-id', socket.id)
-    getChats(socket)
-    getColors(socket)
-    getSketchHistory(socket)
-    getUsers(socket)
+    // console.log(socket.handshake.headers.cookie);
     addUser(socket)
-    getUser(socket)
+    getColors(socket)
 
     socket.on('update-position', (position) => {
         updatePosition(socket, position)
@@ -162,6 +181,16 @@ io.on('connection', (socket) => {
         updateSketch(socket, payload)
     })
 
+    socket.on('join', () => {
+        userJoin(socket)
+        getUsers(socket)
+        getUser(socket)
+        getSketchHistory(socket)
+        getChats(socket)
+    })
+    socket.on('leave', () => {
+        userLeave(socket)
+    })
     socket.on('disconnect', () => {
         // console.log('A user disconnected')
         deleteUser(socket)

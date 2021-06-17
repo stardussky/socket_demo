@@ -9,6 +9,7 @@ const LOADING = Object.freeze({
     LOADING_TYPE_DEFAULT: 'default',
     LOADING_TYPE_AJAX: 'ajax',
 })
+let maxLoadingStack = 0
 
 export default new Vuex.Store({
     strict: process.env.NODE_ENV === 'development',
@@ -26,6 +27,9 @@ export default new Vuex.Store({
         isLoading (state) {
             return !!state.loadingStack.length
         },
+        loadingProgress (state) {
+            return 1 - state.loadingStack.length / maxLoadingStack
+        },
     },
     mutations: {
         CHANGE_LOADING_TYPE (state, payload) {
@@ -36,6 +40,7 @@ export default new Vuex.Store({
         },
         SET_LOADING_STACK (state, payload) {
             state.loadingStack.push(payload)
+            maxLoadingStack = Math.max(state.loadingStack.length, maxLoadingStack)
         },
         DEL_LOADING_STACK (state, payload) {
             state.loadingStack.shift()
@@ -70,6 +75,7 @@ export default new Vuex.Store({
                 const endTime = Date.now()
                 setTimeout(() => {
                     results.forEach(result => commit('DEL_LOADING_STACK'))
+                    maxLoadingStack = 0
                 }, state.loadingConfig.minTime - (endTime - startTime))
             })
         },

@@ -8,6 +8,7 @@ export default class {
                 ...options,
             }
             this.reqRenders = []
+            this.onEvents = {}
             this.render = this.render.bind(this)
             this.resize = this.resize.bind(this)
 
@@ -49,15 +50,25 @@ export default class {
         this.canvas.height = height * dpr
     }
 
-    destroy () {
+    stop () {
         window.cancelAnimationFrame(this.reqID)
+    }
+
+    destroy () {
+        this.stop()
         this.el.removeChild(this.canvas)
 
         window.removeEventListener('resize', this.resize)
     }
 
+    on (name, callback) {
+        if (typeof name === 'string' && typeof callback === 'function') {
+            this.onEvents[name] = callback
+        }
+    }
+
     get viewport () {
-        const dpr = Math.min(window.devicePixelRatio, 1.5)
+        const dpr = 1.5
         const { width, height } = this.el.getBoundingClientRect()
         return {
             width,
