@@ -9,6 +9,7 @@ import SocketIO from 'socket.io-client'
 import VueLazyload from 'vue-lazyload'
 import VueCompositionAPI from '@vue/composition-api'
 import VueMeta from 'vue-meta'
+import PortalVue from 'portal-vue'
 import directive from '@/plugins/directives/index'
 import prototype from '@/plugins/prototype/index'
 import globalComponent from '@/plugins/globalComponent'
@@ -33,6 +34,7 @@ Vue.use(VueLazyload, {
 })
 Vue.use(VueCompositionAPI)
 Vue.use(VueMeta)
+Vue.use(PortalVue)
 Vue.use(directive)
 Vue.use(prototype)
 Vue.use(globalComponent)

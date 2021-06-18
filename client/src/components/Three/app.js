@@ -4,7 +4,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { Geometry } from 'three/examples/jsm/deprecated/Geometry'
 import * as CANNON from 'cannon-es'
-import { threeToCannon, ShapeType } from 'three-to-cannon'
+// import { threeToCannon, ShapeType } from 'three-to-cannon'
 import PointerLockControls from './pointerLockControls'
 import Basic from './basic'
 import vertexShader from './glsl/vertexShader.glsl'
@@ -26,7 +26,7 @@ export default class extends Basic {
         this.scene.fog = new THREE.Fog(0xe1e1e1, 0.1, 120)
 
         // this.dev(true)
-        this.dev(false)
+        // this.dev(false)
 
         // this.createPostprocessing()
         this.createControl()
@@ -112,6 +112,14 @@ export default class extends Basic {
             this.el,
             'mouseup'
         )
+        this.addEvent(
+            () => {
+                this.controls.unlock()
+                this.controls.isLocked = false
+            },
+            this.el,
+            'mouseleave'
+        )
 
         this.reqRenders.push((d, t) => {
             this.controls.update(d)
@@ -121,6 +129,7 @@ export default class extends Basic {
     createRaycaster () {
         this.mouse = new THREE.Vector3()
         this.raycaster = new THREE.Raycaster()
+        let target
 
         this.addEvent(
             ({ clientX, clientY }) => {
@@ -132,18 +141,27 @@ export default class extends Basic {
         )
         this.addEvent(
             () => {
-                this.raycaster.setFromCamera(this.mouse, this.camera)
-                const [intersect] = this.raycaster.intersectObjects(this.scene.children, true)
-
-                if (intersect) {
-                    const target = intersect.object
-
+                if (target) {
                     this.onEvents.clickObject?.(target)
                 }
             },
             this.el,
             'mousedown'
         )
+
+        this.reqRenders.push(() => {
+            this.raycaster.setFromCamera(this.mouse, this.camera)
+            const [intersect] = this.raycaster.intersectObjects(this.scene.children, true)
+
+            if (intersect) {
+                target = intersect.object
+                if (target.name === 'socketButton') {
+                    this.el.style.cursor = 'pointer'
+                } else {
+                    this.el.style.cursor = 'auto'
+                }
+            }
+        })
     }
 
     createLight () {
@@ -152,8 +170,8 @@ export default class extends Basic {
 
         const directionLight = new THREE.DirectionalLight(0xe1e1e1, 4)
         directionLight.castShadow = true
-        directionLight.shadow.mapSize.set(1024, 1024)
-        directionLight.shadow.radius = 10
+        directionLight.shadow.mapSize.set(512, 512)
+        directionLight.shadow.radius = 5
         directionLight.shadow.camera.near = 0.1
         directionLight.shadow.camera.far = 50
         directionLight.shadow.camera.top = 20
@@ -257,7 +275,7 @@ export default class extends Basic {
         const controlsObject = this.controls.getObject()
 
         const listener = new THREE.AudioListener()
-        this.camera.add(listener)
+        // this.camera.add(listener)
 
         const sound = new THREE.Audio(listener)
         sound.setBuffer(this.getResource('bgm').resource)
@@ -320,12 +338,12 @@ export default class extends Basic {
                 for (let i = 0; i < faces.length; i++) {
                     f.push([faces[i].a, faces[i].b, faces[i].c])
                 }
-                // const body = new CANNON.Body({
-                //     type: CANNON.Body.STATIC,
-                //     shape: new CANNON.ConvexPolyhedron({ vertices: v, faces: f }),
-                // })
-                // this.physicalWorld.addBody(body)
-                // console.clear()
+                const body = new CANNON.Body({
+                    type: CANNON.Body.STATIC,
+                    shape: new CANNON.ConvexPolyhedron({ vertices: v, faces: f }),
+                })
+                this.physicalWorld.addBody(body)
+                console.clear()
             }
         })
         this.scene.add(sceneModel)

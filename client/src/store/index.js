@@ -5,7 +5,7 @@ import socketModule from './socket'
 Vue.use(Vuex)
 
 const LOADING = Object.freeze({
-    MIN_LOAD_TIME: 500,
+    MIN_LOAD_TIME: 2000,
     LOADING_TYPE_DEFAULT: 'default',
     LOADING_TYPE_AJAX: 'ajax',
 })
@@ -28,7 +28,10 @@ export default new Vuex.Store({
             return !!state.loadingStack.length
         },
         loadingProgress (state) {
-            return 1 - state.loadingStack.length / maxLoadingStack
+            if (state.loadingStack.length) {
+                return 1 - state.loadingStack.length / maxLoadingStack
+            }
+            return 1
         },
     },
     mutations: {

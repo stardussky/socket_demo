@@ -218,6 +218,7 @@ export default class extends Base {
         this.el.addEventListener('mousemove', this.mousemove)
         this.el.addEventListener('mouseup', this.mouseup)
         this.el.addEventListener('mousedown', this.mousedown)
+        this.el.addEventListener('mouseleave', this.mouseup)
 
         this.socketEvents()
     }
@@ -229,6 +230,7 @@ export default class extends Base {
         this.el.removeEventListener('mousemove', this.mousemove)
         this.el.removeEventListener('mouseup', this.mouseup)
         this.el.removeEventListener('mousedown', this.mousedown)
+        this.el.removeEventListener('mouseleave', this.mouseup)
 
         this.unSubSocketEvents()
     }

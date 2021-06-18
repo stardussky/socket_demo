@@ -20,14 +20,14 @@ export default {
     name: 'App',
     metaInfo () {
         return {
-            title: this.$route.name || this.title,
+            title: process.env.VUE_APP_TITLE,
             titleTemplate: `%s | ${process.env.VUE_APP_TITLE_TEMPLATE}`,
             htmlAttrs: {
                 lang: this.meta.lang,
             },
             meta: [
-                { name: 'googlebot', content: 'noindex' }, // TODO: 正式上線後刪除
-                { name: 'robots', content: 'noindex' }, // TODO: 正式上線後刪除
+                // { name: 'googlebot', content: 'noindex' }, // TODO: 正式上線後刪除
+                // { name: 'robots', content: 'noindex' }, // TODO: 正式上線後刪除
                 { name: 'viewport', content: 'width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no' },
                 { name: 'format-detection', content: 'telephone=no' },
                 { name: 'apple-mobile-web-app-capable', content: 'yes' },
@@ -85,7 +85,7 @@ export default {
             return new Promise(resolve => {
                 WebFont.load({
                     google: {
-                        families: ['Noto Sans TC:300,400,700'],
+                        families: ['Noto Sans TC:300,400,700', 'Montserrat:400'],
                     },
                     active () {
                         resolve()

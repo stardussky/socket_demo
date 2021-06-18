@@ -88,13 +88,13 @@ export default class Basic {
             }
             this.loaderManager = new THREE.LoadingManager()
             this.loaderManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-                // console.log(url, itemsTotal)
                 this.loadStatus.total = itemsTotal
                 this.loadStatus.progress = itemsLoaded / this.loadStatus.total
                 this.onEvents.loadProgress?.(this.loadStatus.progress, this.loadStatus.total)
             }
             this.loaderManager.onLoad = () => {
                 this.loadStatus.isDone = true
+                this.onEvents.loaded?.()
             }
             this.textureLoader = new THREE.TextureLoader(this.loaderManager)
             this.cubeTextureLoader = new THREE.CubeTextureLoader(this.loaderManager)
@@ -181,8 +181,14 @@ export default class Basic {
         }
     }
 
+    start () {
+        this.render()
+        this.clock.start()
+    }
+
     stop () {
         window.cancelAnimationFrame(this.reqID)
+        this.clock.stop()
     }
 
     destroy () {

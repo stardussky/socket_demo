@@ -7,7 +7,9 @@
             v-show="loadingConfig.type === 'ajax' && isLoading"
             v-lock="loadingConfig.type === 'ajax' && isLoading"
             class="loading-ajax"
-        />
+        >
+            <Portal-target name="loading-ajax" />
+        </div>
     </transition>
 </template>
 
@@ -40,7 +42,11 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    background-color: rgba(map-get($colors, white), 0.5);
     z-index: 999;
+    cursor: wait;
+
+    > * {
+        pointer-events: none;
+    }
 }
 </style>
