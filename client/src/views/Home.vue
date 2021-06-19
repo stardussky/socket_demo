@@ -46,5 +46,7 @@ export default {
 
 .home {
     @include size(100%, calc(var(--vh) * 100));
+
+    touch-action: none;
 }
 </style>

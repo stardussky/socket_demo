@@ -10,7 +10,7 @@ const defaultResources = [
     {
         type: 'model',
         name: 'scene',
-        src: 'scene.glb',
+        src: 'scene2.glb',
     },
     {
         type: 'model',
@@ -131,7 +131,7 @@ export default class Basic {
         this.renderer.outputEncoding = THREE.sRGBEncoding
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping
         this.renderer.toneMappingExposure = 1
-        this.renderer.shadowMap.enabled = true
+        // this.renderer.shadowMap.enabled = true
         this.renderer.shadowMap.type = THREE.VSMShadowMap
         this.renderer.shadowMap.autoUpdate = false
         this.el.appendChild(this.renderer.domElement)

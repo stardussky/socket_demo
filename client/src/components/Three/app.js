@@ -4,8 +4,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { Geometry } from 'three/examples/jsm/deprecated/Geometry'
 import * as CANNON from 'cannon-es'
-// import { threeToCannon, ShapeType } from 'three-to-cannon'
-import PointerLockControls from './pointerLockControls'
+import { threeToCannon, ShapeType } from 'three-to-cannon'
+import Controls from './controls/app'
 import Basic from './basic'
 import vertexShader from './glsl/vertexShader.glsl'
 import fragmentShader from './glsl/fragmentShader.glsl'
@@ -23,16 +23,16 @@ export default class extends Basic {
         const envMap = this.getResource('envMap').resource
         this.scene.environment = envMap
         this.scene.background = envMap
-        this.scene.fog = new THREE.Fog(0xe1e1e1, 0.1, 120)
+        this.scene.fog = new THREE.Fog(0xe1e1e1, 0.1, 200)
 
         // this.dev(true)
-        // this.dev(false)
+        this.dev(false)
 
         // this.createPostprocessing()
         this.createControl()
-        this.createRaycaster()
-        this.createLight()
-        this.createPlayer()
+        // this.createRaycaster()
+        // this.createLight()
+        // this.createPlayer()
         // this.createAudio()
         this.createSceneObject()
 
@@ -86,40 +86,20 @@ export default class extends Basic {
     createControl () {
         const playerBody = new CANNON.Body({
             mass: 60,
-            position: new CANNON.Vec3(0, -3, 0),
+            position: new CANNON.Vec3(100, -3, 0),
             shape: new CANNON.Sphere(2),
             linearDamping: 0.98,
         })
         this.physicalWorld.addBody(playerBody)
 
-        const playerCamera = new THREE.Object3D().add(this.camera)
-        this.controls = new PointerLockControls(playerCamera, playerBody, this.el, {
-            personHeight: 0,
+        // const playerCamera = new THREE.Object3D().add(this.camera)
+        const playerCamera = this.camera
+        this.controls = new Controls('touch', playerCamera, playerBody, this.el, {
+            jumpVelocity: 40,
+            velocityFactor: 80,
+            personHeight: 10,
         })
         this.scene.add(this.controls.getObject())
-
-        this.addEvent(
-            () => {
-                this.controls.lock()
-            },
-            this.el,
-            'mousedown'
-        )
-        this.addEvent(
-            () => {
-                this.controls.unlock()
-            },
-            this.el,
-            'mouseup'
-        )
-        this.addEvent(
-            () => {
-                this.controls.unlock()
-                this.controls.isLocked = false
-            },
-            this.el,
-            'mouseleave'
-        )
 
         this.reqRenders.push((d, t) => {
             this.controls.update(d)
@@ -303,47 +283,52 @@ export default class extends Basic {
         this.physicalWorld.addBody(groundBody)
 
         const { scene: sceneModel } = this.getResource('scene').resource
-        const scale = 3
+        const scale = 0.01
         sceneModel.scale.set(scale, scale, scale)
-        sceneModel.position.set(0, -10, 0)
+        sceneModel.position.set(0, -7.5, 0)
 
         sceneModel.traverse((o) => {
             if (o.isMesh) {
-                o.material.envMapIntensity = 2
-                o.castShadow = true
-                o.receiveShadow = true
+                // o.material.envMapIntensity = 2
+                // o.castShadow = true
+                // o.receiveShadow = true
 
-                // const object = o.clone()
-                // const geometry = o.geometry.clone()
-                // // geometry.rotateX(-Math.PI / 2)
-                // geometry.scale(scale, scale, scale)
-                // object.geometry = geometry
-                // const { shape } = threeToCannon(object, { type: ShapeType.HULL })
-                // const body = new CANNON.Body({
-                //   type: CANNON.Body.STATIC,
-                //   shape,
-                // })
-                // this.physicalWorld.addBody(body)
+                // if (~o.name.indexOf('cannon')) {
+                //     const object = o.clone()
+                //     const geometry = o.geometry.clone()
+                //     geometry.rotateX(-Math.PI / 2)
+                //     geometry.scale(scale, scale, scale)
+                //     geometry.translate(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
+                //     object.geometry = geometry
+                //     const { shape } = threeToCannon(object, { type: ShapeType.HULL })
+                //     const body = new CANNON.Body({
+                //         type: CANNON.Body.STATIC,
+                //         shape,
+                //     })
+                //     this.physicalWorld.addBody(body)
+                // }
 
-                const shape = o.geometry.clone()
-                // shape.rotateX(-Math.PI / 2)
-                shape.scale(scale, scale, scale)
-                shape.translate(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
-                const { vertices, faces } = new Geometry().fromBufferGeometry(shape)
-                const v = []
-                const f = []
-                for (let i = 0; i < vertices.length; i++) {
-                    v.push(new CANNON.Vec3(vertices[i].x, vertices[i].y, vertices[i].z))
+                if (~o.name.indexOf('cannon')) {
+                    const shape = o.geometry.clone()
+                    shape.rotateX(-Math.PI / 2)
+                    shape.scale(scale, scale, scale)
+                    shape.translate(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
+                    const { vertices, faces } = new Geometry().fromBufferGeometry(shape)
+                    const v = []
+                    const f = []
+                    for (let i = 0; i < vertices.length; i++) {
+                        v.push(new CANNON.Vec3(vertices[i].x, vertices[i].y, vertices[i].z))
+                    }
+                    for (let i = 0; i < faces.length; i++) {
+                        f.push([faces[i].a, faces[i].b, faces[i].c])
+                    }
+                    // const body = new CANNON.Body({
+                    //     type: CANNON.Body.STATIC,
+                    //     shape: new CANNON.ConvexPolyhedron({ vertices: v, faces: f }),
+                    // })
+                    // this.physicalWorld.addBody(body)
+                    // console.clear()
                 }
-                for (let i = 0; i < faces.length; i++) {
-                    f.push([faces[i].a, faces[i].b, faces[i].c])
-                }
-                const body = new CANNON.Body({
-                    type: CANNON.Body.STATIC,
-                    shape: new CANNON.ConvexPolyhedron({ vertices: v, faces: f }),
-                })
-                this.physicalWorld.addBody(body)
-                console.clear()
             }
         })
         this.scene.add(sceneModel)
@@ -364,7 +349,7 @@ export default class extends Basic {
         )
         socketButton.name = 'socketButton'
         socketButton.position.set(-4, -2, 2)
-        this.scene.add(socketButton)
+        // this.scene.add(socketButton)
 
         this.reqRenders.push((d, t) => {
             uniforms.uTime.value = t

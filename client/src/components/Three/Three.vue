@@ -37,7 +37,7 @@ export default {
     name: 'Three',
     setup (props, { root, refs, emit }) {
         const lodingProgress = ref(0)
-        const isTutorial = ref(true)
+        const isTutorial = ref(false)
         let app
 
         const closeTutorial = () => {
@@ -159,6 +159,29 @@ export default {
         background-color: rgba(map-get($colors, black), 0.8);
         backdrop-filter: blur(5px);
         place-content: center;
+    }
+
+    .touch-controls {
+        @include size(150px);
+
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        background-color: rgba(map-get($colors, black), 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -20px);
+
+        &__btn {
+            @include size(50px);
+
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background-color: rgba(map-get($colors, black), 0.3);
+            border: 1px solid map-get($colors, white);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
     }
 }
 </style>
