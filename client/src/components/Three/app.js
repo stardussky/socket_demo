@@ -17,7 +17,7 @@ export default class extends Basic {
         super(el)
     }
 
-    async init () {
+    async init (device = 'mouse') {
         await super.init()
 
         const envMap = this.getResource('envMap').resource
@@ -29,7 +29,7 @@ export default class extends Basic {
         this.dev(false)
 
         // this.createPostprocessing()
-        this.createControl()
+        this.createControl(device)
         // this.createRaycaster()
         // this.createLight()
         // this.createPlayer()
@@ -83,7 +83,7 @@ export default class extends Basic {
         })
     }
 
-    createControl () {
+    createControl (device) {
         const playerBody = new CANNON.Body({
             mass: 60,
             position: new CANNON.Vec3(100, -3, 0),
@@ -94,7 +94,7 @@ export default class extends Basic {
 
         // const playerCamera = new THREE.Object3D().add(this.camera)
         const playerCamera = this.camera
-        this.controls = new Controls('touch', playerCamera, playerBody, this.el, {
+        this.controls = new Controls(device, playerCamera, playerBody, this.el, {
             jumpVelocity: 40,
             velocityFactor: 80,
             personHeight: 10,

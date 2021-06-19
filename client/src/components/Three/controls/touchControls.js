@@ -42,9 +42,15 @@ export default class extends Base {
     }
 
     destroy () {
+        this.controlsButton.removeEventListener('touchstart', this.tapTouchButton)
+        this.controlsButton.removeEventListener('touchend', this.endTouchButton)
+        this.controlsEl.removeEventListener('touchmove', this.moveTouchButton)
+
         this.domElement.ownerDocument.removeEventListener('touchstart', this.onTouchStart)
         this.domElement.ownerDocument.removeEventListener('touchmove', this.onTouchMove)
         this.domElement.ownerDocument.removeEventListener('touchend', this.onTouchEnd)
+
+        this.domElement.removeChild(this.controlsEl)
     }
 
     createControlsElement () {
@@ -68,7 +74,8 @@ export default class extends Base {
 
     onTouchMove (e) {
         if (this.isLocked) {
-            const { clientX: x, clientY: y } = e.touches[0]
+            const touch = [...e.touches].find(({ target }) => target === e.target)
+            const { clientX: x, clientY: y } = touch
 
             if (this.previousTouch) {
                 const { clientX: px, clientY: py } = this.previousTouch
@@ -79,7 +86,7 @@ export default class extends Base {
                 this.movement.set(movementX * 0.002, movementY * 0.002)
             }
 
-            this.previousTouch = e.touches[0]
+            this.previousTouch = touch
         }
     }
 
@@ -98,7 +105,7 @@ export default class extends Base {
             e.stopPropagation()
             const { clamp } = THREE.MathUtils
             const { currentTarget, touches } = e
-            const { clientX, clientY } = touches[0]
+            const { clientX, clientY } = [...touches].find(({ target }) => target === e.target)
             const { top, left, width, height } = currentTarget.getBoundingClientRect()
             const boundingRangeX = width / 2
             const boundingRangeY = height / 2

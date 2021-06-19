@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount } from '@vue/composition-api'
+import { ref, inject, onMounted, onBeforeUnmount } from '@vue/composition-api'
 import App from './app'
 
 export default {
@@ -38,6 +38,7 @@ export default {
     setup (props, { root, refs, emit }) {
         const lodingProgress = ref(0)
         const isTutorial = ref(false)
+        const vp = inject('viewportInfo')
         let app
 
         const closeTutorial = () => {
@@ -47,7 +48,7 @@ export default {
 
         onMounted(() => {
             app = new App(refs.three)
-            root.$store.dispatch('ADD_LOADING_STACK', app.init())
+            root.$store.dispatch('ADD_LOADING_STACK', app.init(vp.value.isPc ? 'mouse' : 'touch'))
 
             app.on('loadProgress', (itemsLoaded, itemsTotal) => {
                 lodingProgress.value = itemsLoaded * 100 >> 0

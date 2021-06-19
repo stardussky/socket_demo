@@ -170,6 +170,7 @@ export default class Basic {
         for (let i = 0, len = this.resizes.length; i < len; i++) {
             this.resizes[i]()
         }
+        this.onEvents.resize?.()
     }
 
     render () {
