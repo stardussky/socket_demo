@@ -37,7 +37,7 @@ export default {
     name: 'Three',
     setup (props, { root, refs, emit }) {
         const lodingProgress = ref(0)
-        const isTutorial = ref(false)
+        const isTutorial = ref(true)
         const vp = inject('viewportInfo')
         let app
 
@@ -54,9 +54,7 @@ export default {
                 lodingProgress.value = itemsLoaded * 100 >> 0
             })
             app.on('clickObject', (target) => {
-                if (target.name === 'socketButton') {
-                    emit('open-socket')
-                }
+                emit('open-socket')
             })
 
             root.$bus.$on('connect-socket', () => {

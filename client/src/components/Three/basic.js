@@ -10,7 +10,7 @@ const defaultResources = [
     {
         type: 'model',
         name: 'scene',
-        src: 'scene2.glb',
+        src: 'scene.glb',
     },
     {
         type: 'model',
@@ -388,7 +388,7 @@ export default class Basic {
             width: window.innerWidth,
             height: window.innerHeight,
             aspect: window.innerWidth / window.innerHeight,
-            dpr: Math.min(window.devicePixelRatio, 1.5),
+            dpr: Math.min(window.devicePixelRatio, 1),
         }
     }
 

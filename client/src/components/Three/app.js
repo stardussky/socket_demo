@@ -26,11 +26,11 @@ export default class extends Basic {
         this.scene.fog = new THREE.Fog(0xe1e1e1, 0.1, 200)
 
         // this.dev(true)
-        this.dev(false)
+        // this.dev(false)
 
         // this.createPostprocessing()
         this.createControl(device)
-        // this.createRaycaster()
+        this.createRaycaster()
         // this.createLight()
         // this.createPlayer()
         // this.createAudio()
@@ -87,7 +87,7 @@ export default class extends Basic {
         const playerBody = new CANNON.Body({
             mass: 60,
             position: new CANNON.Vec3(100, -3, 0),
-            shape: new CANNON.Sphere(2),
+            shape: new CANNON.Sphere(3),
             linearDamping: 0.98,
         })
         this.physicalWorld.addBody(playerBody)
@@ -95,7 +95,7 @@ export default class extends Basic {
         // const playerCamera = new THREE.Object3D().add(this.camera)
         const playerCamera = this.camera
         this.controls = new Controls(device, playerCamera, playerBody, this.el, {
-            jumpVelocity: 40,
+            jumpVelocity: 20,
             velocityFactor: 80,
             personHeight: 10,
         })
@@ -126,7 +126,7 @@ export default class extends Basic {
                 }
             },
             this.el,
-            'mousedown'
+            'click'
         )
 
         this.reqRenders.push(() => {
@@ -134,13 +134,16 @@ export default class extends Basic {
             const [intersect] = this.raycaster.intersectObjects(this.scene.children, true)
 
             if (intersect) {
-                target = intersect.object
-                if (target.name === 'socketButton') {
+                if (~intersect.object.name.indexOf('click')) {
+                    target = intersect.object
                     this.el.style.cursor = 'pointer'
                 } else {
                     this.el.style.cursor = 'auto'
+                    target = null
                 }
+                return
             }
+            target = null
         })
     }
 
@@ -263,12 +266,12 @@ export default class extends Basic {
         sound.setVolume(0.5)
         sound.play()
 
-        const soundPosition = new THREE.Vector3()
+        const soundPosition = new THREE.Vector3(-72, 2, 0)
 
         const { clamp, mapLinear } = THREE.MathUtils
         this.reqRenders.push(() => {
             let playerToSoundLength = controlsObject.position.distanceTo(soundPosition)
-            playerToSoundLength = clamp(mapLinear(playerToSoundLength, 0, 30, 0.5, 0), 0, 0.5)
+            playerToSoundLength = clamp(mapLinear(playerToSoundLength, 0, 40, 0.5, 0), 0, 0.5)
             sound.setVolume(playerToSoundLength)
         })
     }

@@ -283,19 +283,25 @@ export default {
         box-shadow: 5px 5px 10px rgba(map-get($colors, black), 0.5);
         transform: translate(-50%, -50px);
         cursor: auto;
+        @include media-breakpoint-down(desktop) {
+            width: 90%;
+        }
 
         &-list {
             display: flex;
-            align-self: center;
+            justify-content: center;
             margin: 5px 0 10px;
+            flex-wrap: wrap;
+            align-self: center;
         }
 
         &-color {
             @include size(30px);
 
-            margin: 0 10px;
+            margin: 0 10px 5px;
             border: 2px solid map-get($colors, deep);
             border-radius: 50%;
+            flex-shrink: 0;
             cursor: pointer;
         }
     }
@@ -307,6 +313,9 @@ export default {
             padding: 5px 10px;
             background-color: map-get($colors, grey);
             border-radius: 20px;
+            @include media-breakpoint-down(tablet) {
+                font-size: 16px;
+            }
         }
 
         button {
@@ -328,7 +337,7 @@ export default {
 
         position: absolute;
         bottom: 50px;
-        right: 20px;
+        right: 40px;
         display: flex;
         padding: 10px 15px;
         background-color: map-get($colors, white);
@@ -339,6 +348,10 @@ export default {
         flex-direction: column;
         cursor: auto;
         transform-origin: bottom-right;
+        @include media-breakpoint-down(tablet) {
+            right: 20px;
+            width: 335px;
+        }
 
         &.-hide {
             @include size(55px);
@@ -404,6 +417,9 @@ export default {
                 background-color: map-get($colors, grey);
                 border-radius: 20px;
                 flex: 1 1 auto;
+                @include media-breakpoint-down(tablet) {
+                    font-size: 16px;
+                }
             }
 
             button {
@@ -420,8 +436,15 @@ export default {
         position: fixed;
         top: 40px;
         right: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: map-get($colors, white);
         cursor: pointer;
+        @include media-breakpoint-down(tablet) {
+            top: 20px;
+            right: 20px;
+        }
     }
 
     &__loading {

@@ -1,6 +1,6 @@
 <template>
     <transition
-        name="loading"
+        name="loading-ajax"
         @afterLeave="loadingDone"
     >
         <div

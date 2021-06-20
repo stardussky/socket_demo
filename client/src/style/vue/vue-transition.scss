@@ -29,3 +29,15 @@
         }
     }
 }
+
+.loading-ajax {
+    &-leave {
+        &-to {
+            opacity: 0;
+        }
+
+        &-active {
+            transition: opacity 0.3s;
+        }
+    }
+}

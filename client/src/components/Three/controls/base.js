@@ -21,7 +21,7 @@ export default class {
         this.minPolarAngle = 0
         this.maxPolarAngle = Math.PI
 
-        this.euler = new THREE.Euler(0, 0, 0, 'YXZ')
+        this.euler = new THREE.Euler(0, Math.PI / 2, 0, 'YXZ')
         this.movement = new THREE.Vector2()
         this.lerpMovement = new THREE.Vector2()
 

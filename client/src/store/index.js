@@ -5,7 +5,7 @@ import socketModule from './socket'
 Vue.use(Vuex)
 
 const LOADING = Object.freeze({
-    MIN_LOAD_TIME: 2000,
+    MIN_LOAD_TIME: 0,
     LOADING_TYPE_DEFAULT: 'default',
     LOADING_TYPE_AJAX: 'ajax',
 })
